@@ -1,0 +1,37 @@
+{% if articles %}
+<div class="space-y-3">
+    {% for article in articles %}
+    {% include "partials/article_card.html" %}
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if total > per_page %}
+<div class="flex justify-between items-center mt-4 text-sm">
+    <span class="text-gray-500">共 {{ total }} 篇</span>
+    <div class="flex gap-1">
+        {% if page > 1 %}
+        <button class="px-3 py-1 border rounded-md hover:bg-gray-100"
+                hx-get="/api/articles?page={{ page - 1 }}&per_page={{ per_page }}{% for k,v in request.args.items() if k != 'page' %}&{{ k }}={{ v }}{% endfor %}"
+                hx-target="#article-list">
+            上一页
+        </button>
+        {% endif %}
+        <span class="px-3 py-1 text-gray-500">第 {{ page }} 页</span>
+        {% if page * per_page < total %}
+        <button class="px-3 py-1 border rounded-md hover:bg-gray-100"
+                hx-get="/api/articles?page={{ page + 1 }}&per_page={{ per_page }}{% for k,v in request.args.items() if k != 'page' %}&{{ k }}={{ v }}{% endfor %}"
+                hx-target="#article-list">
+            下一页
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="text-center py-12 text-gray-400">
+    <p class="text-lg">暂无匹配文章</p>
+    <p class="text-sm mt-2">尝试调整筛选条件或点击右上角"手动刷新"</p>
+</div>
+{% endif %}

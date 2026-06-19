@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">FedEx / UPS 中国洲际航线版图</h1>
+        <p class="text-sm text-gray-500 mt-1">基于公开信息整理，仅供参考。更新时间：2026年6月</p>
+    </div>
+
+    <!-- China Airports Overview -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">中国主要货运机场</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for ap in airports %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                <div class="text-lg font-bold text-brand-700">{{ ap.code }}</div>
+                <div class="text-sm font-medium text-gray-800 mt-1">{{ ap.name }}</div>
+                <div class="text-xs text-gray-500 mt-1">{{ ap.city }}</div>
+                <div class="mt-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">{{ ap.role }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- FedEx Routes -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-blue-600 text-white px-6 py-3 flex items-center justify-between">
+            <h2 class="text-lg font-semibold">FedEx 中国航线网络</h2>
+            <span class="text-sm text-blue-100">{{ fedex_routes|length }} 条航线</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-left text-gray-600">
+                        <th class="px-4 py-3 border-b">始发地</th>
+                        <th class="px-4 py-3 border-b">目的地</th>
+                        <th class="px-4 py-3 border-b">经停点</th>
+                        <th class="px-4 py-3 border-b">班期</th>
+                        <th class="px-4 py-3 border-b">机型</th>
+                        <th class="px-4 py-3 border-b">状态</th>
+                        <th class="px-4 py-3 border-b">备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in fedex_routes %}
+                    <tr class="border-b border-gray-50 hover:bg-blue-50/50 transition-colors">
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ r.origin }}</td>
+                        <td class="px-4 py-3 font-medium text-blue-700">{{ r.destination }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ r.via or '-' }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                                {{ 'bg-green-100 text-green-700' if '7' in r.frequency else 'bg-blue-100 text-blue-700' }}">
+                                {{ r.frequency }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 font-mono text-xs text-gray-700">{{ r.aircraft }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">{{ r.status }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-xs text-gray-500 max-w-[280px]">{{ r.note }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== FedEx Guangzhou CAN Hub Detail ===== -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold">FedEx 广州白云 (CAN) 亚太转运中心 · 详细航线网络</h2>
+                    <p class="text-sm text-blue-100 mt-1">{{ can_hub_summary.role }}</p>
+                </div>
+                <div class="text-right text-sm text-blue-100">
+                    <div>每周 {{ can_hub_summary.weekly_flights }}</div>
+                    <div>覆盖 {{ can_hub_summary.connected_continents }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hub summary stats -->
+        <div class="px-6 py-4 bg-blue-50/50 border-b border-blue-100">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-500">启用时间</span>
+                    <div class="font-medium text-gray-800">{{ can_hub_summary.opened }}</div>
+                </div>
+                <div>
+                    <span class="text-gray-500">货运设施</span>
+                    <div class="font-medium text-gray-800">{{ can_hub_summary.location }}</div>
+                </div>
+                <div>
+                    <span class="text-gray-500">分拣能力</span>
+                    <div class="font-medium text-gray-800">{{ can_hub_summary.sort_capacity }}</div>
+                </div>
+                <div>
+                    <span class="text-gray-500">主力机型</span>
+                    <div class="font-medium text-gray-800">{{ can_hub_summary.main_aircraft }}</div>
+                </div>
+            </div>
+            <div class="mt-2 text-sm text-gray-500">
+                <strong>主要货类：</strong>{{ can_hub_summary.key_commodities }}
+            </div>
+        </div>
+
+        <!-- Route tables by region -->
+        {% set total_can = namespace(count=0) %}
+        {% for region_key, region in can_hub_routes.items() %}
+        {% set total_can.count = total_can.count + region.routes|length %}
+        <div class="border-b border-gray-100 last:border-b-0">
+            <div class="px-6 py-2.5 bg-gray-50 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700">{{ region.icon }} {{ region.label }}
+                    <span class="text-xs text-gray-400 ml-2">{{ region.routes|length }} 条航线</span>
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 text-xs border-b">
+                            <th class="px-4 py-2 pl-6">目的地</th>
+                            <th class="px-4 py-2">国家/地区</th>
+                            <th class="px-4 py-2">班期</th>
+                            <th class="px-4 py-2">机型</th>
+                            <th class="px-4 py-2 pr-6">备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in region.routes %}
+                        <tr class="border-b border-gray-50 last:border-b-0 hover:bg-blue-50/30 transition-colors">
+                            <td class="px-4 py-2.5 pl-6 font-medium text-blue-700">{{ r.dest }}</td>
+                            <td class="px-4 py-2.5 text-gray-500">{{ r.dest_city }}</td>
+                            <td class="px-4 py-2.5">
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                                    {{ 'bg-green-100 text-green-700' if '7' in r.freq else 'bg-blue-100 text-blue-700' }}">
+                                    {{ r.freq }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2.5 font-mono text-xs text-gray-700">{{ r.ac }}</td>
+                            <td class="px-4 py-2.5 pr-6 text-xs text-gray-500 max-w-[320px]">{{ r.note }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- CAN Hub totals -->
+        <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-600 flex justify-between">
+            <span>广州 CAN 枢纽合计</span>
+            <span class="font-semibold text-gray-800">{{ total_can.count }} 条航线 · 约 {{ can_hub_summary.weekly_flights }}</span>
+        </div>
+    </div>
+
+    <!-- ===== FedEx CAN Hub route map (text-based) ===== -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">CAN 枢纽航线网络拓扑示意</h2>
+        <div class="font-mono text-xs leading-relaxed text-gray-700 bg-gray-50 rounded-lg p-4 overflow-x-auto whitespace-pre">
+{{
+'                         ┌─── CDG (巴黎) · 每周5班 777F
+                         │
+              ┌─── CGN (科隆) · 每周3班 777F
+              │          │
+              │          └─── LGG (列日) · 每周2班 777F
+              │
+         【欧洲方向】          【北美方向】
+              │                    │
+              │    ┌───────────────┤
+              │    │               │
+              │    │         ┌─── ANC (安克雷奇) · 每日 777F ←─ 加油/换组
+              │    │         │
+              │    │         ├─── MEM (孟菲斯) · 每日 777F ←─ 全球超级枢纽
+              │    │         ├─── EWR (纽瓦克) · 每周3班 777F
+              │    │         ├─── LAX (洛杉矶) · 每周3班 777F
+              │    │         └─── OAK (奥克兰) · 每周3班 777F/767
+              │    │
+              └────┴──── ★ CAN 广州白云 ★ ────┐
+                         │                    │
+              【东北亚】  │                    │  【东南亚】
+                         │                    │
+    ┌─── NRT (东京) · 每周5班 767              ├─── SIN (新加坡) · 每周5班 767
+    ├─── KIX (大阪) · 每周5班 767              ├─── BKK (曼谷) · 每周3班 767
+    ├─── ICN (首尔) · 每周5班 767              ├─── SGN (胡志明) · 每周5班 767
+    └─── TPE (台北) · 每周3班 767              ├─── HAN (河内) · 每周3班 767
+                                                ├─── PEN (槟城) · 每周3班 767
+              【南亚/中东】                      ├─── KUL (吉隆坡) · 每周3班 767
+                         │                    ├─── MNL (马尼拉) · 每周3班 767
+    ┌─── DEL (德里) · 每周5班 767              └─── CGK (雅加达) · 每周3班 767
+    ├─── BOM (孟买) · 每周3班 767
+    └─── DXB (迪拜) · 每周5班 777/767           【大洋洲】
+                                                │
+              【国内 Feeder】              ┌─── SYD (悉尼) · 每周3班 767
+                         │               └─── MEL (墨尔本) · 每周2班 767
+    ┌─── PVG (上海) · 每日 767/757
+    ├─── PEK (北京) · 每周5班 767/757
+    └─── SZX (深圳) · 每周5班 757
+'
+}}
+        </div>
+        <p class="text-xs text-gray-400 mt-3">箭头方向表示从 CAN 出发的目的地。实际运营中为双向航线。班期和机型为基于公开信息的估算值，实际可能调整。</p>
+    </div>
+
+    <!-- ===== Secondary Hubs Detail ===== -->
+    <div class="space-y-6">
+        <h2 class="text-xl font-bold text-gray-800 pt-4">其他重点机场航线详情</h2>
+
+        {% for hub in secondary_hubs %}
+        {% set carrier = 'FedEx' if hub.color == 'blue' else 'UPS' %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Hub header -->
+            <div class="bg-gradient-to-r {{ 'from-blue-600 to-blue-400' if hub.color == 'blue' else 'from-amber-600 to-amber-400' }} text-white px-5 py-3 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold">{{ hub.title }}</h3>
+                    <p class="text-xs {{ 'text-blue-100' if hub.color == 'blue' else 'text-amber-100' }} mt-0.5">{{ hub.summary.role }}</p>
+                </div>
+                <div class="text-right text-xs {{ 'text-blue-100' if hub.color == 'blue' else 'text-amber-100' }}">
+                    <div>{{ hub.summary.weekly_flights }}</div>
+                    <div>{{ hub.summary.connected_continents }}</div>
+                </div>
+            </div>
+
+            <!-- Hub stats -->
+            <div class="px-5 py-3 {{ 'bg-blue-50/50' if hub.color == 'blue' else 'bg-amber-50/50' }} border-b">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div><span class="text-gray-500">启用</span><div class="font-medium text-gray-800">{{ hub.summary.opened }}</div></div>
+                    <div><span class="text-gray-500">设施</span><div class="font-medium text-gray-800 truncate" title="{{ hub.summary.location }}">{{ hub.summary.location }}</div></div>
+                    <div><span class="text-gray-500">主力机型</span><div class="font-medium text-gray-800">{{ hub.summary.main_aircraft }}</div></div>
+                    <div><span class="text-gray-500">主要货类</span><div class="font-medium text-gray-800 truncate" title="{{ hub.summary.key_commodities }}">{{ hub.summary.key_commodities[:30] }}{% if hub.summary.key_commodities|length > 30 %}...{% endif %}</div></div>
+                </div>
+            </div>
+
+            <!-- Route tables by region -->
+            {% for region_key, region in hub.routes.items() %}
+            <div class="border-b border-gray-100 last:border-b-0">
+                <div class="px-5 py-2 bg-gray-50 border-b border-gray-100">
+                    <span class="text-xs font-semibold text-gray-600">{{ region.label }}</span>
+                    <span class="text-xs text-gray-400 ml-1">{{ region.routes|length }} 条</span>
+                </div>
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="text-left text-gray-400 border-b">
+                            <th class="px-3 py-1.5 pl-5">目的地</th>
+                            <th class="px-3 py-1.5">国家/地区</th>
+                            <th class="px-3 py-1.5">班期</th>
+                            <th class="px-3 py-1.5">机型</th>
+                            <th class="px-3 py-1.5 pr-5">备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in region.routes %}
+                        <tr class="border-b border-gray-50 last:border-b-0 {{ 'hover:bg-blue-50/30' if hub.color == 'blue' else 'hover:bg-amber-50/30' }} transition-colors">
+                            <td class="px-3 py-1.5 pl-5 font-medium {{ 'text-blue-700' if hub.color == 'blue' else 'text-amber-700' }}">{{ r.dest }}</td>
+                            <td class="px-3 py-1.5 text-gray-500">{{ r.dest_city }}</td>
+                            <td class="px-3 py-1.5">
+                                <span class="px-1.5 py-0.5 rounded-full text-xs {{ 'bg-green-100 text-green-700' if '7' in r.freq else 'bg-gray-100 text-gray-600' }}">
+                                    {{ r.freq }}
+                                </span>
+                            </td>
+                            <td class="px-3 py-1.5 font-mono text-gray-600">{{ r.ac }}</td>
+                            <td class="px-3 py-1.5 pr-5 text-gray-400 max-w-[220px] truncate" title="{{ r.note }}">{{ r.note }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- UPS Routes -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-amber-600 text-white px-6 py-3 flex items-center justify-between">
+            <h2 class="text-lg font-semibold">UPS 中国航线网络</h2>
+            <span class="text-sm text-amber-100">{{ ups_routes|length }} 条航线</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-left text-gray-600">
+                        <th class="px-4 py-3 border-b">始发地</th>
+                        <th class="px-4 py-3 border-b">目的地</th>
+                        <th class="px-4 py-3 border-b">经停点</th>
+                        <th class="px-4 py-3 border-b">班期</th>
+                        <th class="px-4 py-3 border-b">机型</th>
+                        <th class="px-4 py-3 border-b">状态</th>
+                        <th class="px-4 py-3 border-b">备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in ups_routes %}
+                    <tr class="border-b border-gray-50 hover:bg-amber-50/50 transition-colors">
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ r.origin }}</td>
+                        <td class="px-4 py-3 font-medium text-amber-700">{{ r.destination }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ r.via or '-' }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                                {{ 'bg-green-100 text-green-700' if '7' in r.frequency else 'bg-blue-100 text-blue-700' }}">
+                                {{ r.frequency }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 font-mono text-xs text-gray-700">{{ r.aircraft }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">{{ r.status }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-xs text-gray-500 max-w-[280px]">{{ r.note }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Fleet comparison -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
+                FedEx 主力货机机队
+            </h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b">
+                        <th class="pb-2">机型</th>
+                        <th class="pb-2">业载</th>
+                        <th class="pb-2">航程</th>
+                        <th class="pb-2">机队规模</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in fedex_fleet %}
+                    <tr class="border-b border-gray-50">
+                        <td class="py-2 font-mono font-medium text-gray-800">{{ f.type }}</td>
+                        <td class="py-2 text-gray-600">{{ f.payload }}</td>
+                        <td class="py-2 text-gray-600">{{ f.range }}</td>
+                        <td class="py-2 text-gray-600">{{ f.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-amber-600 inline-block"></span>
+                UPS 主力货机机队
+            </h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b">
+                        <th class="pb-2">机型</th>
+                        <th class="pb-2">业载</th>
+                        <th class="pb-2">航程</th>
+                        <th class="pb-2">机队规模</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in ups_fleet %}
+                    <tr class="border-b border-gray-50">
+                        <td class="py-2 font-mono font-medium text-gray-800">{{ f.type }}</td>
+                        <td class="py-2 text-gray-600">{{ f.payload }}</td>
+                        <td class="py-2 text-gray-600">{{ f.range }}</td>
+                        <td class="py-2 text-gray-600">{{ f.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Key Insights -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">航线网络要点</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <strong class="text-blue-700">FedEx 广州 CAN 枢纽</strong>
+                <p class="mt-1 text-gray-500">广州白云机场是 FedEx 在美国以外最大的转运中心（亚太枢纽），所有中国-北美主干线必经 CAN 或 PVG。</p>
+            </div>
+            <div class="border-l-4 border-amber-500 pl-4 py-2">
+                <strong class="text-amber-700">UPS 深圳 SZX 枢纽</strong>
+                <p class="mt-1 text-gray-500">UPS 于 2024 年将亚洲转运中心从菲律宾克拉克迁至深圳宝安，SZX 现为 UPS 亚洲核心枢纽。</p>
+            </div>
+            <div class="border-l-4 border-gray-400 pl-4 py-2">
+                <strong>安克雷奇 ANC 经停</strong>
+                <p class="mt-1 text-gray-500">几乎所有中美/中欧航线均经停安克雷奇加油/换组，这是北太平洋货运航线的标准操作。</p>
+            </div>
+            <div class="border-l-4 border-gray-400 pl-4 py-2">
+                <strong>主力机型对比</strong>
+                <p class="mt-1 text-gray-500">FedEx 主力 777F（业载102吨）+ 767-300F；UPS 主力 747-8F（业载134吨/全球最大货机之一）+ MD-11F。</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

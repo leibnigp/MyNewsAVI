@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyNewsAVI — FedEx/UPS 航空航线动态</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14">
+                <div class="flex items-center space-x-8">
+                    <a href="/" class="text-xl font-bold text-brand-700 tracking-tight">
+                        MyNewsAVI
+                    </a>
+                    <div class="hidden sm:flex space-x-4">
+                        <a href="/" class="text-sm font-medium text-gray-700 hover:text-brand-600 px-2 py-1 rounded-md {{ 'bg-brand-50 text-brand-700' if request.path == '/' else '' }}">Dashboard</a>
+                        <a href="/archive" class="text-sm font-medium text-gray-700 hover:text-brand-600 px-2 py-1 rounded-md {{ 'bg-brand-50 text-brand-700' if request.path == '/archive' else '' }}">历史归档</a>
+                        <a href="/reference" class="text-sm font-medium text-gray-700 hover:text-brand-600 px-2 py-1 rounded-md {{ 'bg-brand-50 text-brand-700' if request.path == '/reference' else '' }}">航线版图</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="fetch('/api/refresh', {method:'POST'}).then(r=>r.json()).then(d=>alert('抓取完成: ' + d.new_count + ' 篇新文章'))"
+                            class="text-sm text-gray-500 hover:text-brand-600 px-3 py-1 border border-gray-300 rounded-md hover:border-brand-500 transition-colors">
+                        手动刷新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-gray-200 mt-12 py-6 text-center text-xs text-gray-400">
+        MyNewsAVI — 航空物流航线动态追踪 · FedEx / UPS
+    </footer>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

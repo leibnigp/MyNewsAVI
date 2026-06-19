@@ -1,0 +1,146 @@
+<h2>航空物流新闻门户 — 布局风格选择</h2>
+<p class="subtitle">你想要的新闻门户更接近哪种风格？</p>
+
+<div class="cards">
+  <div class="card" data-choice="magazine" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">风格 A：杂志门户（Bloomberg / Reuters 风格）</div>
+        <div class="mockup-body">
+          <!-- Hero row -->
+          <div style="display:flex; gap:12px; margin-bottom:12px;">
+            <div style="flex:1.2; background:linear-gradient(135deg,#1e3a5f,#2d5a87); border-radius:8px; padding:20px; color:#fff; min-height:160px;">
+              <div style="font-size:10px; opacity:0.7; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">📰 头条新闻</div>
+              <div style="font-size:15px; font-weight:bold; margin-bottom:6px;">FedEx 新增香港-孟菲斯直飞货机航线</div>
+              <div style="font-size:11px; opacity:0.85; line-height:1.4;">每周3班，采用B777F执飞，进一步提升亚太运力</div>
+              <div style="margin-top:8px; font-size:10px; opacity:0.6;">2小时前 · FedEx</div>
+            </div>
+            <div style="flex:0.8; display:flex; flex-direction:column; gap:8px;">
+              <div style="background:#f8fafc; border-radius:6px; padding:12px; border-left:3px solid #d4a574;">
+                <div style="font-size:10px; color:#888; text-transform:uppercase;">UPS</div>
+                <div style="font-size:12px; font-weight:600; color:#1a1a1a;">UPS 扩展深圳-科隆货运航线</div>
+              </div>
+              <div style="background:#f8fafc; border-radius:6px; padding:12px; border-left:3px solid #c41e3a;">
+                <div style="font-size:10px; color:#888; text-transform:uppercase;">DHL</div>
+                <div style="font-size:12px; font-weight:600; color:#1a1a1a;">DHL 莱比锡枢纽新增A330-300P2F机队</div>
+              </div>
+            </div>
+          </div>
+          <!-- 3-column grid below -->
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+            <div style="background:#fff; border-radius:6px; padding:12px; border:1px solid #eee;">
+              <div style="font-size:9px; color:#3b82f6; font-weight:600;">FedEx</div>
+              <div style="font-size:11px; font-weight:600; margin:4px 0; line-height:1.3;">FedEx 新加坡区域枢纽完成升级改造</div>
+              <div style="font-size:9px; color:#999;">3小时前</div>
+            </div>
+            <div style="background:#fff; border-radius:6px; padding:12px; border:1px solid #eee;">
+              <div style="font-size:9px; color:#d4a574; font-weight:600;">UPS</div>
+              <div style="font-size:11px; font-weight:600; margin:4px 0; line-height:1.3;">UPS Q3财报：国际航空货运量增长8%</div>
+              <div style="font-size:9px; color:#999;">5小时前</div>
+            </div>
+            <div style="background:#fff; border-radius:6px; padding:12px; border:1px solid #eee;">
+              <div style="font-size:9px; color:#c41e3a; font-weight:600;">DHL</div>
+              <div style="font-size:11px; font-weight:600; margin:4px 0; line-height:1.3;">DHL Express 中东-非洲新航线开通</div>
+              <div style="font-size:9px; color:#999;">6小时前</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>杂志门户风格</h3>
+      <p>头条大图 + 侧栏要闻 + 下方多栏卡片网格。视觉层次丰富，信息密度高，适合日常浏览。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="dashboard" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">风格 B：仪表盘分栏（按承运人分区展示）</div>
+        <div class="mockup-body">
+          <!-- 3 carrier columns -->
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+            <!-- FedEx column -->
+            <div style="border-radius:8px; overflow:hidden; border:2px solid #3b82f6;">
+              <div style="background:#3b82f6; color:#fff; padding:8px 12px; font-weight:bold; font-size:13px; text-align:center;">FedEx</div>
+              <div style="padding:8px; background:#fff;">
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">香港-孟菲斯新增直飞B777F航线</div>
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">新加坡枢纽完成升级改造</div>
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">孟菲斯-迪拜航线加密至每日2班</div>
+                <div style="padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">广州白云机场新增FedEx专用货站</div>
+              </div>
+            </div>
+            <!-- UPS column -->
+            <div style="border-radius:8px; overflow:hidden; border:2px solid #d4a574;">
+              <div style="background:#d4a574; color:#fff; padding:8px 12px; font-weight:bold; font-size:13px; text-align:center;">UPS</div>
+              <div style="padding:8px; background:#fff;">
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">深圳-科隆货运航线扩展至每周5班</div>
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">Q3国际航空货运量增长8%</div>
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">路易斯维尔枢纽引入新自动化系统</div>
+              </div>
+            </div>
+            <!-- DHL column -->
+            <div style="border-radius:8px; overflow:hidden; border:2px solid #c41e3a;">
+              <div style="background:#c41e3a; color:#fff; padding:8px 12px; font-weight:bold; font-size:13px; text-align:center;">DHL</div>
+              <div style="padding:8px; background:#fff;">
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">莱比锡枢纽新增A330-300P2F机队</div>
+                <div style="border-bottom:1px solid #f0f0f0; padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">中东-非洲新货运航线开通</div>
+                <div style="padding:6px 0; font-size:10px; line-height:1.3; font-weight:500;">DHL 亚太电商包裹量同比增长15%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>仪表盘分栏</h3>
+      <p>三家承运人各占一列，一目了然对比。适合快速扫描各公司的动态，但缺少跨公司的聚合视角。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="hybrid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">风格 C：混合布局（头条聚合 + 承运人Tab切换）</div>
+        <div class="mockup-body">
+          <!-- Tabs -->
+          <div style="display:flex; gap:6px; margin-bottom:12px;">
+            <div style="background:#1e3a5f; color:#fff; padding:6px 16px; border-radius:20px; font-size:11px; font-weight:600;">全部</div>
+            <div style="background:#e8f0fe; color:#3b82f6; padding:6px 16px; border-radius:20px; font-size:11px; font-weight:600;">FedEx</div>
+            <div style="background:#fef3e4; color:#b8860b; padding:6px 16px; border-radius:20px; font-size:11px; font-weight:600;">UPS</div>
+            <div style="background:#fde8ec; color:#c41e3a; padding:6px 16px; border-radius:20px; font-size:11px; font-weight:600;">DHL</div>
+          </div>
+          <!-- Featured top story -->
+          <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f); border-radius:8px; padding:18px; color:#fff; margin-bottom:10px;">
+            <div style="display:flex; gap:12px;">
+              <div style="flex:1;">
+                <div style="font-size:9px; background:#3b82f6; display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:8px;">FedEx · 头条</div>
+                <div style="font-size:14px; font-weight:bold; line-height:1.3;">FedEx 新增香港-孟菲斯直飞B777F货机航线，每周3班</div>
+                <div style="font-size:10px; opacity:0.7; margin-top:6px;">2小时前 · 亚太 · 新航线</div>
+              </div>
+            </div>
+          </div>
+          <!-- Feed list below -->
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:10px; background:#fff; border-radius:6px; border:1px solid #f0f0f0;">
+              <div style="width:4px; height:28px; background:#d4a574; border-radius:2px;"></div>
+              <div style="flex:1;"><div style="font-size:11px; font-weight:600;">UPS Q3国际航空货运量增长8%</div><div style="font-size:9px; color:#999;">5小时前</div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; padding:10px; background:#fff; border-radius:6px; border:1px solid #f0f0f0;">
+              <div style="width:4px; height:28px; background:#c41e3a; border-radius:2px;"></div>
+              <div style="flex:1;"><div style="font-size:11px; font-weight:600;">DHL 莱比锡枢纽新增A330-300P2F机队</div><div style="font-size:9px; color:#999;">4小时前</div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; padding:10px; background:#fff; border-radius:6px; border:1px solid #f0f0f0;">
+              <div style="width:4px; height:28px; background:#3b82f6; border-radius:2px;"></div>
+              <div style="flex:1;"><div style="font-size:11px; font-weight:600;">FedEx 新加坡枢纽完成升级改造</div><div style="font-size:9px; color:#999;">3小时前</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>混合布局</h3>
+      <p>顶部头条区 + 承运人Tab切换 + 下方信息流列表。兼顾聚合视野和分家筛选，灵活度高。</p>
+    </div>
+  </div>
+</div>

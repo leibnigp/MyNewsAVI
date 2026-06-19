@@ -1,0 +1,60 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow
+            {{ 'border-l-4 border-l-brand-500' if article.is_flagged else '' }}">
+    <div class="flex justify-between items-start gap-4">
+        <div class="flex-1 min-w-0">
+            <a href="/article/{{ article.id }}" class="text-base font-semibold text-gray-800 hover:text-brand-600 line-clamp-2">
+                {{ article.title }}
+            </a>
+            <div class="flex flex-wrap gap-2 mt-2 text-xs">
+                {% if article.carrier %}
+                <span class="px-2 py-0.5 rounded-full font-medium
+                    {{ 'bg-blue-100 text-blue-700' if article.carrier == 'FedEx' else '' }}
+                    {{ 'bg-amber-100 text-amber-700' if article.carrier == 'UPS' else '' }}
+                    {{ 'bg-purple-100 text-purple-700' if article.carrier == 'Both' else '' }}
+                    {{ 'bg-gray-100 text-gray-600' if article.carrier not in ('FedEx', 'UPS', 'Both') else '' }}">
+                    {{ article.carrier }}
+                </span>
+                {% endif %}
+                {% if article.route_type %}
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                    {{ 'bg-green-100 text-green-700' if article.route_type == 'new_route' else '' }}
+                    {{ 'bg-orange-100 text-orange-700' if article.route_type == 'intercontinental' else '' }}
+                    {{ 'bg-yellow-100 text-yellow-700' if article.route_type == 'route_change' else '' }}
+                    {{ 'bg-gray-100 text-gray-600' if article.route_type not in ('new_route', 'intercontinental', 'route_change') else '' }}">
+                    {{ {'new_route': '新航线', 'route_change': '航线变更', 'intercontinental': '洲际航线', 'general': '综合新闻'}.get(article.route_type, article.route_type) }}
+                </span>
+                {% endif %}
+                {% if article.region %}
+                <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{{ article.region }}</span>
+                {% endif %}
+                {% if article.keywords %}
+                    {% set kwlist = article.keywords | safe | replace('[', '') | replace(']', '') | replace('"', '') %}
+                    {% for kw in kwlist.split(', ')[:3] %}
+                    <span class="px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-200">{{ kw.strip().strip("'") }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% if article.summary_raw %}
+            <p class="text-sm text-gray-500 mt-2 line-clamp-2">{{ article.summary_raw }}</p>
+            {% endif %}
+            {% if article.ai_summary_cn %}
+            <div class="mt-2 bg-blue-50 rounded-md p-2 text-sm text-blue-800">
+                <span class="font-medium">AI 摘要: </span>{{ article.ai_summary_cn }}
+            </div>
+            {% endif %}
+        </div>
+        <div class="flex flex-col items-end gap-2 shrink-0">
+            <span class="text-xs text-gray-400 whitespace-nowrap">
+                {% if article.published_at %}
+                    {{ article.published_at.strftime('%Y-%m-%d') }}
+                {% else %}
+                    未知日期
+                {% endif %}
+            </span>
+            <button onclick="fetch('/api/articles/{{ article.id }}/flag', {method:'PUT'}).then(r=>r.json()).then(d=>{this.querySelector('span').textContent=d.is_flagged?'★':'☆';location.reload()})"
+                    class="text-lg leading-none {{ 'text-yellow-500' if article.is_flagged else 'text-gray-300' }} hover:text-yellow-500 transition-colors" title="标记关注">
+                <span>{{ '★' if article.is_flagged else '☆' }}</span>
+            </button>
+        </div>
+    </div>
+</div>
