@@ -46,7 +46,7 @@
         <div class="flex flex-col items-end gap-2 shrink-0">
             <span class="text-xs text-gray-400 whitespace-nowrap">
                 {% if article.published_at %}
-                    {{ article.published_at.strftime('%Y-%m-%d') }}
+                    {{ article.published_at[:10] if article.published_at is string else article.published_at.strftime('%Y-%m-%d') }}
                 {% else %}
                     未知日期
                 {% endif %}

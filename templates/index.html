@@ -1,25 +1,86 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="space-y-6">
-    <!-- Stats bar -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" hx-get="/api/stats" hx-trigger="load, every 60s">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="text-2xl font-bold text-brand-700" id="stat-new-today">-</div>
-            <div class="text-sm text-gray-500">今日新增</div>
+    <!-- Date header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-baseline gap-3">
+            <span class="text-4xl font-light text-gray-300 tracking-wider" id="date-dayname">---</span>
+            <span class="text-5xl font-bold text-gray-800 tracking-tight" id="date-day">--</span>
+            <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-400 uppercase tracking-widest" id="date-month">---</span>
+                <span class="text-xs text-gray-300" id="date-year">----</span>
+            </div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="text-2xl font-bold text-green-600" id="stat-route-changes">-</div>
-            <div class="text-sm text-gray-500">航线变动</div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="text-2xl font-bold text-orange-500" id="stat-pending">-</div>
-            <div class="text-sm text-gray-500">待分析</div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="text-2xl font-bold text-gray-700" id="stat-total">-</div>
-            <div class="text-sm text-gray-500">总计文章</div>
+        <div class="h-px flex-1 mx-8 bg-gradient-to-r from-gray-200 via-gray-300 to-transparent"></div>
+        <div class="text-xs text-gray-400 tracking-wide">
+            FedEx / UPS 航空物流航线动态
         </div>
     </div>
+    <script>
+    (function() {
+        const d = new Date();
+        const days = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+        const months = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+        document.getElementById('date-dayname').textContent = days[d.getDay()];
+        document.getElementById('date-day').textContent = String(d.getDate()).padStart(2,'0');
+        document.getElementById('date-month').textContent = months[d.getMonth()];
+        document.getElementById('date-year').textContent = d.getFullYear();
+    })();
+    </script>
+
+    <!-- Intercontinental Route Summary -->
+    <div id="route-summary" class="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-xl shadow-md border border-slate-700 p-5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+        <div class="relative flex items-start gap-4">
+            <div class="shrink-0 mt-0.5">
+                <div class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xs font-medium text-brand-400 uppercase tracking-wider">洲际航线动态</span>
+                    <span class="text-[10px] text-slate-500" id="summary-time"></span>
+                </div>
+                <p class="text-sm text-slate-200 leading-relaxed" id="summary-text">
+                    <span class="inline-block align-middle bg-slate-700 rounded-md h-4 w-3/4 animate-pulse"></span>
+                </p>
+            </div>
+            <button onclick="refreshSummary()" class="shrink-0 text-slate-500 hover:text-brand-400 transition-colors" title="刷新摘要">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <script>
+    function refreshSummary() {
+        const textEl = document.getElementById('summary-text');
+        const timeEl = document.getElementById('summary-time');
+        textEl.innerHTML = '<span class="inline-block align-middle bg-slate-700 rounded-md h-4 w-3/4 animate-pulse"></span>';
+        fetch('/api/intercontinental-summary?refresh=1')
+            .then(r => r.json())
+            .then(d => {
+                textEl.textContent = d.summary;
+                if (d.generated_at) {
+                    timeEl.textContent = d.generated_at.slice(0,16).replace('T',' ');
+                }
+            });
+    }
+    (function loadSummary() {
+        fetch('/api/intercontinental-summary')
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('summary-text').textContent = d.summary;
+                if (d.generated_at) {
+                    document.getElementById('summary-time').textContent = d.generated_at.slice(0,16).replace('T',' ');
+                }
+            });
+    })();
+    </script>
 
     <!-- Filter bar -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -63,20 +124,4 @@
         </div>
     </div>
 </div>
-
-<script>
-// Update stats after load
-document.body.addEventListener('htmx:afterSettle', function(evt) {
-    if (evt.detail.target.id === 'article-list') {
-        fetch('/api/stats')
-            .then(r => r.json())
-            .then(d => {
-                document.getElementById('stat-new-today').textContent = d.new_today;
-                document.getElementById('stat-route-changes').textContent = d.route_changes_this_week;
-                document.getElementById('stat-pending').textContent = d.pending_analysis;
-                document.getElementById('stat-total').textContent = d.total_articles;
-            });
-    }
-});
-</script>
 {% endblock %}
